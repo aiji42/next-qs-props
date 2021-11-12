@@ -41,5 +41,8 @@
     "semantic-release-cli": "^5.4.4",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "query-string": "^7.0.1"
   }
 }
