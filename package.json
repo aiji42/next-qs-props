@@ -7,7 +7,13 @@
   "author": "aiji42 <aiji42@gmail.com> (https://twitter.com/aiji42_dev)",
   "license": "MIT",
   "scripts": {
-    "prepare": "husky install"
+    "lint": "eslint ./src/**/*.ts ./src/*.ts",
+    "format": "prettier --write src/*.ts src/**/*.ts example/src/*",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "build": "tsc",
+    "prepare": "husky install",
+    "semantic-release": "semantic-release"
   },
   "peerDependencies": {
     "next": ">=12.0.0"
