@@ -2,11 +2,12 @@
   "name": "qs-props",
   "version": "1.0.0",
   "description": "This library makes it possible to handle quey strings in Next.js getStaticProps.",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./esm/index.js",
+  "types": "./esm/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "esm"
   ],
   "repository": "https://github.com/aiji42/next-qs-props",
   "author": "aiji42 <aiji42@gmail.com> (https://twitter.com/aiji42_dev)",
@@ -20,7 +21,7 @@
     "format": "prettier --write src/*.ts src/**/*.ts example/src/*",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "build": "tsc",
+    "build": "tsc && tsc -p tsconfig.esm.json",
     "prepare": "husky install",
     "semantic-release": "semantic-release"
   },
