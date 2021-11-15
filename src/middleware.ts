@@ -9,16 +9,21 @@ export const makeQueryStringMiddleware = (
 ): Middleware => {
   return (req: NextRequest) => {
     if (!req.nextUrl.search) return
-    const params = Object.fromEntries(
-      Object.entries(parse(req.nextUrl.search, option)).filter(([key]) =>
-        (option.allowKeys ?? []).includes(key)
-      )
-    )
+
+    const params =
+      typeof option.allowKeys === 'undefined'
+        ? parse(req.nextUrl.search, option)
+        : Object.fromEntries(
+            Object.entries(parse(req.nextUrl.search, option)).filter(([key]) =>
+              option.allowKeys?.includes(key)
+            )
+          )
+    if (!Object.keys(params).length) return
     const qsp = createQueryStringPath(params)
     return NextResponse.rewrite(
       req.nextUrl.pathname === '/'
         ? `/${qsp}`
-        : req.nextUrl.pathname.replace(/\/$/, '') + qsp
+        : req.nextUrl.pathname.replace(/\/$/, '') + `/${qsp}`
     )
   }
 }
