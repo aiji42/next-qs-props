@@ -13,6 +13,7 @@ npm-debug.log*
 coverage
 build
 dist
+esm
 
 # log
 *.log
