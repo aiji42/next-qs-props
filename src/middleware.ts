@@ -1,23 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ParseOptions, parse } from 'query-string'
 import { createQueryStringPath } from './query-string-path'
 
 type Middleware = (req: NextRequest) => undefined | NextResponse
 
-export const makeQueryStringMiddleware = (
-  option: ParseOptions & { allowKeys?: string[] }
-): Middleware => {
+export const makeQueryStringMiddleware = (option?: {
+  allowKeys?: string[]
+  parser?: (q: string) => Record<string, unknown>
+}): Middleware => {
   return (req: NextRequest) => {
-    if (!req.nextUrl.search) return
+    if (!(req.nextUrl.search && req.nextUrl.searchParams)) return
 
-    const params =
-      typeof option.allowKeys === 'undefined'
-        ? parse(req.nextUrl.search, option)
-        : Object.fromEntries(
-            Object.entries(parse(req.nextUrl.search, option)).filter(([key]) =>
-              option.allowKeys?.includes(key)
-            )
-          )
+    let params: Record<string, unknown> = {}
+    if (!option?.parser)
+      req.nextUrl.searchParams.forEach((val, key) => {
+        if (!option?.allowKeys || option.allowKeys.includes(key))
+          params[key] = val
+      })
+    else
+      params = Object.entries(option.parser(req.nextUrl.search)).reduce(
+        (res, [key, val]) =>
+          !option?.allowKeys || option.allowKeys.includes(key)
+            ? { ...res, [key]: val }
+            : res,
+        {}
+      )
+
     if (!Object.keys(params).length) return
     const qsp = createQueryStringPath(params)
     return NextResponse.rewrite(
