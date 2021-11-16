@@ -10,20 +10,18 @@ export const makeQueryStringMiddleware = (option?: {
   return (req: NextRequest) => {
     if (!(req.nextUrl.search && req.nextUrl.searchParams)) return
 
+    const { parser, allowKeys } = option ?? {}
     let params: Record<string, unknown> = {}
-    if (!option?.parser)
-      req.nextUrl.searchParams.forEach((val, key) => {
-        if (!option?.allowKeys || option.allowKeys.includes(key))
-          params[key] = val
-      })
-    else
-      params = Object.entries(option.parser(req.nextUrl.search)).reduce(
+    if (parser)
+      params = Object.entries(parser(req.nextUrl.search)).reduce(
         (res, [key, val]) =>
-          !option?.allowKeys || option.allowKeys.includes(key)
-            ? { ...res, [key]: val }
-            : res,
+          !allowKeys || allowKeys.includes(key) ? { ...res, [key]: val } : res,
         {}
       )
+    else
+      req.nextUrl.searchParams.forEach((val, key) => {
+        if (!allowKeys || allowKeys.includes(key)) params[key] = val
+      })
 
     if (!Object.keys(params).length) return
     const qsp = createQueryStringPath(params)
