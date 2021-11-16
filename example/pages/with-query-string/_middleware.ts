@@ -1,3 +1,5 @@
 import { makeQueryStringMiddleware } from 'qs-props'
 
-export const middleware = makeQueryStringMiddleware({ arrayFormat: 'bracket' })
+export const middleware = makeQueryStringMiddleware({
+  allowKeys: ['size', 'color']
+})
