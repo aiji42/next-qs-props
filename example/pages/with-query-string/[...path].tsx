@@ -20,19 +20,19 @@ export const getStaticPaths: GetStaticPaths = () => {
 }
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
-  const props = getQueryStringProps(ctx, 'path')
+  const props = getQueryStringProps<Pick<Props, 'size' | 'color'>>(ctx, 'path')
 
   if (!props)
     return {
       props: {}
     }
 
-  if (props.size && !sizes.includes(props.size as string))
+  if (props.size && !sizes.includes(props.size))
     return {
       notFound: true
     }
 
-  if (props.color && !colors.includes(props.color as string))
+  if (props.color && !colors.includes(props.color))
     return {
       notFound: true
     }
