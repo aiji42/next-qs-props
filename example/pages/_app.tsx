@@ -1,4 +1,3 @@
-import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import {
   GeistProvider,
@@ -27,7 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             <Grid>
               <Text font="32px" marginTop={1.3} paddingRight={2}>
                 <Link
-                  href="https://github.com/aiji42/next-fortress"
+                  href="https://github.com/aiji42/next-qs-props"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

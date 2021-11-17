@@ -37,15 +37,18 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
       notFound: true
     }
 
-  return { props }
+  const generatedAt = new Date().toUTCString()
+
+  return { props: { ...props, generatedAt } }
 }
 
 type Props = {
   size?: string
   color?: string
+  generatedAt: string
 }
 
-const Page: VFC<Props> = (props) => {
+const Page: VFC<Props> = ({ generatedAt, ...props }) => {
   const data = Object.entries(props).map(([key, value]) => ({ key, value }))
   const router = useRouter()
   const [size, setSize] = useReducer((_: string, value: string | string[]) => {
@@ -78,6 +81,15 @@ const Page: VFC<Props> = (props) => {
 
   return (
     <>
+      <Text h2>Static Generate with Query Strings Example</Text>
+
+      <Text>
+        With <Code>qs-props</Code>, parameters passed by the query string can be
+        handled by getStaticProps.
+      </Text>
+
+      <Spacer />
+
       <Grid.Container gap={1}>
         <Grid>
           <Select placeholder="Size" onChange={setSize} value={size}>
@@ -124,6 +136,10 @@ const Page: VFC<Props> = (props) => {
         />
         <Table.Column prop="value" label="value" />
       </Table>
+
+      <Spacer />
+
+      <Text>This page generated at {generatedAt}</Text>
     </>
   )
 }
