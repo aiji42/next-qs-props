@@ -117,7 +117,11 @@ const Page: VFC<Props> = (props) => {
       <Spacer />
 
       <Table data={data}>
-        <Table.Column prop="key" label="key" />
+        <Table.Column
+          prop="key"
+          label="key"
+          render={(v) => <Text b>{v}</Text>}
+        />
         <Table.Column prop="value" label="value" />
       </Table>
     </>
