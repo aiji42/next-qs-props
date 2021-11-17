@@ -1,10 +1,10 @@
 {
   "name": "qs-props",
   "version": "1.0.0",
-  "description": "This library makes it possible to handle quey strings in Next.js getStaticProps.",
+  "description": "This library makes it possible to handle query strings in Next.js getStaticProps.",
   "main": "./dist/index.js",
-  "module": "./esm/index.js",
-  "types": "./esm/index.d.ts",
+  "module": "./esm/main.js",
+  "types": "./esm/main.d.ts",
   "files": [
     "dist",
     "esm"
