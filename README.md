@@ -1,7 +1,7 @@
 [![codecov](https://codecov.io/gh/aiji42/next-qs-props/branch/main/graph/badge.svg?token=ZWU2IX3T1U)](https://codecov.io/gh/aiji42/next-qs-props)
 [![npm version](https://badge.fury.io/js/qs-props.svg)](https://badge.fury.io/js/qs-props)
 
-# :bowl with spoon: qs-props
+# :bowl_with_spoon: qs-props
 
 This library enhances `getStaticProps` in Next.js.
 
