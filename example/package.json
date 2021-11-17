@@ -11,7 +11,7 @@
     "@geist-ui/react": "^2.2.0",
     "@geist-ui/react-icons": "^1.0.1",
     "next": "12.0.3",
-    "qs-props": "link:../",
+    "qs-props": "^1.0.0-beta.1",
     "query-string": "^7.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"
