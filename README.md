@@ -11,7 +11,7 @@ This is useful when transferring a running web service to Next.js, and the URL f
 
 ## Example
 
-[qs-props example](https://ps-props.vercel.app)
+[qs-props example](https://next-qs-props.vercel.app)
 
 ## Require
 
@@ -108,7 +108,7 @@ export const getStaticProps: GetStaticProps<Props> = async (ctx) => {
 ```
 
 ## Contributing
-Please read [CONTRIBUTING.md](https://github.com/aiji42/next-ps-props/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/aiji42/next-qs-props/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/aiji42/next-ps-props/blob/main/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/aiji42/next-qs-props/blob/main/LICENSE) file for details
