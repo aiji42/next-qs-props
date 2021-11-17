@@ -80,6 +80,11 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@geist-ui/react-icons@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@geist-ui/react-icons/-/react-icons-1.0.1.tgz#5da112bbc98216bf05da3aabbd7d21594440b209"
+  integrity sha512-/phre1NwXT0Mrxcq3yb+KksJ16/ykptgxI7+jh5pmDZfxnIMPlBWFBGDK0yw96oi752Wuo24X6+tkWjVe/g5Bg==
+
 "@geist-ui/react@^2.2.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@geist-ui/react/-/react-2.2.0.tgz#964a2bb695edf69f8c87c9ecd8ad782bc0ba7038"

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@geist-ui/react": "^2.2.0",
+    "@geist-ui/react-icons": "^1.0.1",
     "next": "12.0.3",
     "qs-props": "link:../",
     "query-string": "^7.0.1",

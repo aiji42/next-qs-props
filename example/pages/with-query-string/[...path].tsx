@@ -1,7 +1,15 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { getQueryStringProps } from 'qs-props'
 import React, { useReducer, VFC } from 'react'
-import { Table, Select } from '@geist-ui/react'
+import {
+  Table,
+  Select,
+  Spacer,
+  Code,
+  Description,
+  Text,
+  Grid
+} from '@geist-ui/react'
 import { useRouter } from 'next/router'
 
 export const getStaticPaths: GetStaticPaths = () => {
@@ -19,6 +27,16 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
       props: {}
     }
 
+  if (props.size && !sizes.includes(props.size as string))
+    return {
+      notFound: true
+    }
+
+  if (props.color && !colors.includes(props.color as string))
+    return {
+      notFound: true
+    }
+
   return { props }
 }
 
@@ -31,17 +49,27 @@ const Page: VFC<Props> = (props) => {
   const data = Object.entries(props).map(([key, value]) => ({ key, value }))
   const router = useRouter()
   const [size, setSize] = useReducer((_: string, value: string | string[]) => {
+    const { size: _size, ...rest } = props
     router.push({
       ...router,
-      query: { path: router.query.path?.[0], ...props, size: value }
+      query: {
+        path: router.query.path?.[0],
+        ...rest,
+        ...(value && { size: value })
+      }
     })
     return typeof value === 'string' ? value : value[0]
   }, props.size ?? '')
   const [color, setColor] = useReducer(
     (_: string, value: string | string[]) => {
+      const { color: _color, ...rest } = props
       router.push({
         ...router,
-        query: { path: router.query.path?.[0], ...props, color: value }
+        query: {
+          path: router.query.path?.[0],
+          ...rest,
+          ...(value && { color: value })
+        }
       })
       return typeof value === 'string' ? value : value[0]
     },
@@ -50,25 +78,53 @@ const Page: VFC<Props> = (props) => {
 
   return (
     <>
+      <Grid.Container gap={1}>
+        <Grid>
+          <Select placeholder="Size" onChange={setSize} value={size}>
+            <Select.Option value="">-</Select.Option>
+            {sizes.map((size) => (
+              <Select.Option key={size} value={size}>
+                {size}
+              </Select.Option>
+            ))}
+          </Select>
+        </Grid>
+        <Grid>
+          <Select placeholder="Color" onChange={setColor} value={color}>
+            <Select.Option value="">-</Select.Option>
+            {colors.map((color) => (
+              <Select.Option key={color} value={color}>
+                {color}
+              </Select.Option>
+            ))}
+          </Select>
+        </Grid>
+      </Grid.Container>
+
+      <Spacer scale={3} />
+
+      <Description
+        title="Now selecting params"
+        content={
+          <Text>
+            The key and value are given as query parameters. In this example,
+            only <Code>size</Code> and <Code>color</Code> are subject to static
+            generation, and the other keys are ignored.
+          </Text>
+        }
+      />
+
+      <Spacer />
+
       <Table data={data}>
         <Table.Column prop="key" label="key" />
         <Table.Column prop="value" label="value" />
       </Table>
-
-      <Select placeholder="Size" onChange={setSize} value={size}>
-        <Select.Option value="small">small</Select.Option>
-        <Select.Option value="medium">medium</Select.Option>
-        <Select.Option value="large">large</Select.Option>
-      </Select>
-
-      <Select placeholder="Color" onChange={setColor} value={color}>
-        <Select.Option value="black">black</Select.Option>
-        <Select.Option value="white">white</Select.Option>
-        <Select.Option value="red">red</Select.Option>
-        <Select.Option value="blue">blue</Select.Option>
-      </Select>
     </>
   )
 }
 
 export default Page
+
+const sizes = ['small', 'medium', 'large']
+const colors = ['black', 'white', 'red', 'blue']
