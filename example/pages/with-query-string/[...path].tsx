@@ -1,6 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { getQueryStringProps } from 'qs-props'
-import React, { useReducer, VFC } from 'react'
+import React, { useCallback, useReducer, useState, VFC } from 'react'
 import {
   Table,
   Select,
@@ -51,32 +51,37 @@ type Props = {
 const Page: VFC<Props> = ({ generatedAt, ...props }) => {
   const data = Object.entries(props).map(([key, value]) => ({ key, value }))
   const router = useRouter()
-  const [size, setSize] = useReducer((_: string, value: string | string[]) => {
-    const { size: _size, ...rest } = props
-    router.push({
-      ...router,
-      query: {
-        path: router.query.path?.[0],
-        ...rest,
-        ...(value && { size: value })
-      }
-    })
-    return typeof value === 'string' ? value : value[0]
-  }, props.size ?? '')
-  const [color, setColor] = useReducer(
-    (_: string, value: string | string[]) => {
+  const [size, setSize] = useState(props.size ?? '')
+  const handleSize = useCallback(
+    (value: string | string[]) => {
+      const { size: _size, ...rest } = props
+      router.push({
+        pathname: router.pathname,
+        query: {
+          path: router.query.path?.[0],
+          ...rest,
+          ...(value && { size: value })
+        }
+      })
+      setSize(typeof value === 'string' ? value : value[0])
+    },
+    [props, router]
+  )
+  const [color, setColor] = useState(props.color ?? '')
+  const handleColor = useCallback(
+    (value: string | string[]) => {
       const { color: _color, ...rest } = props
       router.push({
-        ...router,
+        pathname: router.pathname,
         query: {
           path: router.query.path?.[0],
           ...rest,
           ...(value && { color: value })
         }
       })
-      return typeof value === 'string' ? value : value[0]
+      setColor(typeof value === 'string' ? value : value[0])
     },
-    props.color ?? ''
+    [props, router]
   )
 
   return (
@@ -92,7 +97,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
 
       <Grid.Container gap={1}>
         <Grid>
-          <Select placeholder="Size" onChange={setSize} value={size}>
+          <Select placeholder="Size" onChange={handleSize} value={size}>
             <Select.Option value="">-</Select.Option>
             {sizes.map((size) => (
               <Select.Option key={size} value={size}>
@@ -102,7 +107,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
           </Select>
         </Grid>
         <Grid>
-          <Select placeholder="Color" onChange={setColor} value={color}>
+          <Select placeholder="Color" onChange={handleColor} value={color}>
             <Select.Option value="">-</Select.Option>
             {colors.map((color) => (
               <Select.Option key={color} value={color}>

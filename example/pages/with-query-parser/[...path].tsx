@@ -1,6 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { getQueryStringProps } from 'qs-props'
-import React, { useReducer, VFC } from 'react'
+import React, { useCallback, useReducer, useState, VFC } from 'react'
 import {
   Table,
   Select,
@@ -51,26 +51,29 @@ type Props = {
 const Page: VFC<Props> = ({ generatedAt, ...props }) => {
   const data = Object.entries(props).map(([key, value]) => ({ key, value }))
   const router = useRouter()
-  const [size, setSize] = useReducer(
-    (_: string[], value: string | string[]) => {
+  const [size, setSize] = useState(props.size ?? [])
+  const handleSize = useCallback(
+    (value: string | string[]) => {
       const { size: _size, color } = props
       router.push({
-        ...router,
+        pathname: router.pathname,
         query: {
           path: router.query.path?.[0],
           ...(color && { 'color[]': color }),
           ...(value && { 'size[]': value })
         }
       })
-      return Array.isArray(value) ? value : [value]
+      setSize(Array.isArray(value) ? value : [value])
     },
-    props.size ?? []
+    [props, router]
   )
-  const [color, setColor] = useReducer(
-    (_: string[], value: string | string[]) => {
+
+  const [color, setColor] = useState(props.color ?? [])
+  const handleColor = useCallback(
+    (value: string | string[]) => {
       const { color: _color, size } = props
       router.push({
-        ...router,
+        pathname: router.pathname,
         query: {
           path: router.query.path?.[0],
           ...(size && { 'size[]': size }),
@@ -79,7 +82,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       })
       return Array.isArray(value) ? value : [value]
     },
-    props.color ?? []
+    [props, router]
   )
 
   return (
@@ -96,7 +99,12 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
 
       <Grid.Container gap={1}>
         <Grid>
-          <Select placeholder="Size" onChange={setSize} value={size} multiple>
+          <Select
+            placeholder="Size"
+            onChange={handleSize}
+            value={size}
+            multiple
+          >
             <Select.Option value="">-</Select.Option>
             {sizes.map((size) => (
               <Select.Option key={size} value={size}>
@@ -108,7 +116,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
         <Grid>
           <Select
             placeholder="Color"
-            onChange={setColor}
+            onChange={handleColor}
             value={color}
             multiple
           >
