@@ -107,6 +107,28 @@ export const getStaticProps: GetStaticProps<Props> = async (ctx) => {
 }
 ```
 
+## Note
+
+### Generate path with query string by getStaticPaths
+
+Use `createQueryStringPath`.
+```ts
+import { createQueryStringPath } from 'qs-props'
+
+const sizes = ['small', 'medium', 'large']
+
+export const getStaticPaths: GetStaticPaths<{ path: string[] }> = () => {
+  return {
+    paths: sizes.map((size) => ({
+      params: {
+        path: ['base-path', createQueryStringPath({ size })]
+      }
+    })),
+    fallback: 'blocking'
+  }
+}
+```
+
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/aiji42/next-qs-props/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
