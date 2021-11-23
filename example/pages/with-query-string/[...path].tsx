@@ -1,6 +1,10 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
-import { getQueryStringProps } from 'qs-props'
-import React, { useCallback, useReducer, useState, VFC } from 'react'
+import {
+  createQueryStringPath,
+  getQueryStringProps,
+  stripQueryStringPath
+} from 'qs-props'
+import React, { useCallback, useState, VFC } from 'react'
 import {
   Table,
   Select,
@@ -12,9 +16,36 @@ import {
 } from '@geist-ui/react'
 import { useRouter } from 'next/router'
 
-export const getStaticPaths: GetStaticPaths = () => {
+export const getStaticPaths: GetStaticPaths<{ path: string[] }> = () => {
+  let paths: { params: { path: string[] } }[] = []
+  paths = [
+    ...paths,
+    ...sizes.map((size) => ({
+      params: {
+        path: ['example', createQueryStringPath({ size })]
+      }
+    }))
+  ]
+  paths = [
+    ...paths,
+    ...colors.map((color) => ({
+      params: {
+        path: ['example', createQueryStringPath({ color })]
+      }
+    }))
+  ]
+  paths = [
+    ...paths,
+    ...sizes.flatMap((size) =>
+      colors.map((color) => ({
+        params: {
+          path: ['example', createQueryStringPath({ size, color })]
+        }
+      }))
+    )
+  ]
   return {
-    paths: [],
+    paths,
     fallback: 'blocking'
   }
 }
@@ -49,7 +80,9 @@ type Props = {
 }
 
 const Page: VFC<Props> = ({ generatedAt, ...props }) => {
-  const data = Object.entries(props).map(([key, value]) => ({ key, value }))
+  const data = Object.entries(props)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, value]) => ({ key, value }))
   const router = useRouter()
   const [size, setSize] = useState(props.size ?? '')
   const handleSize = useCallback(
@@ -58,7 +91,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       router.push({
         pathname: router.pathname,
         query: {
-          path: router.query.path?.[0],
+          path: stripQueryStringPath(router.query.path ?? ''),
           ...rest,
           ...(value && { size: value })
         }
@@ -74,7 +107,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       router.push({
         pathname: router.pathname,
         query: {
-          path: router.query.path?.[0],
+          path: stripQueryStringPath(router.query.path ?? ''),
           ...rest,
           ...(value && { color: value })
         }

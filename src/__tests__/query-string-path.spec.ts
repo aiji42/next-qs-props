@@ -1,6 +1,7 @@
 import {
   parseQueryStringPath,
-  createQueryStringPath
+  createQueryStringPath,
+  stripQueryStringPath
 } from '../query-string-path'
 
 describe('query-string-path', () => {
@@ -24,6 +25,20 @@ describe('query-string-path', () => {
       expect(createQueryStringPath({ foo: 'bar', bar: true })).toEqual(
         '_query.{"foo":"bar","bar":true}'
       )
+    })
+  })
+
+  describe('stripQueryStringPath', () => {
+    test('the query path must be removed.', () => {
+      expect(stripQueryStringPath('normal-path')).toEqual('normal-path')
+      expect(stripQueryStringPath('_query.{"foo":"bar"}')).toEqual('')
+      expect(stripQueryStringPath(['normal-path', 'normal-path'])).toEqual([
+        'normal-path',
+        'normal-path'
+      ])
+      expect(
+        stripQueryStringPath(['normal-path', '_query.{"foo":"bar"}'])
+      ).toEqual(['normal-path'])
     })
   })
 })
