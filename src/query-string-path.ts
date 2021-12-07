@@ -1,11 +1,12 @@
 export const parseQueryStringPath = (
   p: string
 ): undefined | Record<string, unknown> => {
-  if (p.startsWith('_query.')) return JSON.parse(p.replace(/^_query\./, ''))
+  if (p.startsWith('_query.'))
+    return JSON.parse(p.replace(/^_query\./, '').replace(/"\|\|\|/g, '":'))
 }
 
 export const createQueryStringPath = (q: Record<string, unknown>): string =>
-  `_query.${JSON.stringify(q)}`
+  `_query.${JSON.stringify(q).replace(/":/g, '"|||')}`
 
 type Return<T> = T extends string
   ? string
