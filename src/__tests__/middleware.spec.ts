@@ -23,7 +23,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/'
             }
           } as NextRequest)
-        ).toEqual('/_query.{"foo":"bar","bar":"baz"}')
+        ).toEqual('/_query.{"foo"|||"bar","bar"|||"baz"}')
       })
       test('under the some path', () => {
         expect(
@@ -34,7 +34,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/some-path'
             }
           } as NextRequest)
-        ).toEqual('/some-path/_query.{"foo":"bar","bar":"baz"}')
+        ).toEqual('/some-path/_query.{"foo"|||"bar","bar"|||"baz"}')
       })
       test('with a trailing slash', () => {
         expect(
@@ -45,7 +45,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/some-path/'
             }
           } as NextRequest)
-        ).toEqual('/some-path/_query.{"foo":"bar","bar":"baz"}')
+        ).toEqual('/some-path/_query.{"foo"|||"bar","bar"|||"baz"}')
       })
       test('does not have search params', () => {
         expect(
@@ -86,7 +86,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/'
             }
           } as NextRequest)
-        ).toEqual('/_query.{"allowedKey":"true"}')
+        ).toEqual('/_query.{"allowedKey"|||"true"}')
       })
       test('has multi allowedKeys value', () => {
         let middleware = makeQueryStringMiddleware({
@@ -102,7 +102,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/'
             }
           } as NextRequest)
-        ).toEqual('/_query.{"allowedKey1":"true","allowedKey2":"false"}')
+        ).toEqual('/_query.{"allowedKey1"|||"true","allowedKey2"|||"false"}')
       })
     })
   })
@@ -121,7 +121,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/'
             }
           } as NextRequest)
-        ).toEqual('/_query.{"foo":["bar","baz"]}')
+        ).toEqual('/_query.{"foo"|||["bar","baz"]}')
       })
       test('under the some path', () => {
         expect(
@@ -132,7 +132,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/some-path'
             }
           } as NextRequest)
-        ).toEqual('/some-path/_query.{"foo":["bar","baz"]}')
+        ).toEqual('/some-path/_query.{"foo"|||["bar","baz"]}')
       })
       test('with a trailing slash', () => {
         expect(
@@ -143,7 +143,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/some-path/'
             }
           } as NextRequest)
-        ).toEqual('/some-path/_query.{"foo":["bar","baz"]}')
+        ).toEqual('/some-path/_query.{"foo"|||["bar","baz"]}')
       })
       test('does not have search params', () => {
         expect(
@@ -185,7 +185,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/'
             }
           } as NextRequest)
-        ).toEqual('/_query.{"allowedKey":"true"}')
+        ).toEqual('/_query.{"allowedKey"|||"true"}')
       })
       test('has multi allowedKeys value', () => {
         let middleware = makeQueryStringMiddleware({
@@ -202,7 +202,7 @@ describe('makeQueryStringMiddleware', () => {
               pathname: '/'
             }
           } as NextRequest)
-        ).toEqual('/_query.{"allowedKey1":"true","allowedKey2":"false"}')
+        ).toEqual('/_query.{"allowedKey1"|||"true","allowedKey2"|||"false"}')
       })
     })
   })

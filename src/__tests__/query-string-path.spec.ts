@@ -20,10 +20,10 @@ describe('query-string-path', () => {
   describe('createQueryStringPath', () => {
     test('serialize an object to a path', () => {
       expect(createQueryStringPath({ foo: 'bar' })).toEqual(
-        '_query.{"foo":"bar"}'
+        '_query.{"foo"|||"bar"}'
       )
       expect(createQueryStringPath({ foo: 'bar', bar: true })).toEqual(
-        '_query.{"foo":"bar","bar":true}'
+        '_query.{"foo"|||"bar","bar"|||true}'
       )
     })
   })
