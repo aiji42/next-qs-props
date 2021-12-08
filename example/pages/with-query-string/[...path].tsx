@@ -15,7 +15,6 @@ import {
   Grid
 } from '@geist-ui/react'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
 
 export const getStaticPaths: GetStaticPaths<{ path: string[] }> = () => {
   let paths: { params: { path: string[] } }[] = []
@@ -46,7 +45,7 @@ export const getStaticPaths: GetStaticPaths<{ path: string[] }> = () => {
     )
   ]
   return {
-    paths: [],
+    paths: paths,
     fallback: 'blocking'
   }
 }
