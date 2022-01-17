@@ -1,34 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createQueryStringPath } from './query-string-path'
+import { NextRequest, NextResponse, NextMiddleware } from 'next/server'
 
-type Middleware = (req: NextRequest) => undefined | NextResponse
-
-export const makeQueryStringMiddleware = (option?: {
-  allowKeys?: string[]
-  parser?: (q: string) => Record<string, unknown>
-}): Middleware => {
+export const makeMiddleware = (option: {
+  activeWhen?: (request: NextRequest) => boolean
+  keys: string[]
+  path: string
+}): NextMiddleware => {
   return (req: NextRequest) => {
-    if (!(req.nextUrl.search && req.nextUrl.searchParams)) return
+    if (!(option.activeWhen ?? (() => true))(req)) return
 
-    const { parser, allowKeys } = option ?? {}
-    let params: Record<string, unknown> = {}
-    if (parser)
-      params = Object.entries(parser(req.nextUrl.search)).reduce(
-        (res, [key, val]) =>
-          !allowKeys || allowKeys.includes(key) ? { ...res, [key]: val } : res,
-        {}
-      )
-    else
-      req.nextUrl.searchParams.forEach((val, key) => {
-        if (!allowKeys || allowKeys.includes(key)) params[key] = val
-      })
+    const replacePath = option.keys.reduce((res, key) => {
+      const val = req.nextUrl.searchParams.get(key)
+      return res.replace(`[${key}]`, val ?? '')
+    }, option.path)
 
-    if (!Object.keys(params).length) return
-    const qsp = createQueryStringPath(params)
-    return NextResponse.rewrite(
-      req.nextUrl.pathname === '/'
-        ? `/${qsp}`
-        : req.nextUrl.pathname.replace(/\/$/, '') + `/${qsp}`
-    )
+    return NextResponse.rewrite(replacePath)
   }
 }
