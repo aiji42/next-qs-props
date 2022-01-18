@@ -5,6 +5,8 @@ jest.mock('next/server', () => ({
   NextResponse: { rewrite: jest.fn() }
 }))
 
+jest.spyOn(console, 'warn').mockImplementation()
+
 const event = {} as NextFetchEvent
 const makeRequest = (searchParams: URLSearchParams): NextRequest =>
   ({
@@ -21,12 +23,12 @@ describe('makeMiddleware', () => {
   describe('When condition is Not active', () => {
     const middleware = makeMiddleware({
       activeWhen: () => false,
-      keys: ['page', 'sort'],
-      path: '/base/[page]/[sort]'
+      queries: [{ key: 'page', fill: '1' }],
+      path: '/base/[page]'
     })
     test('the path will not be replaced', () => {
       const res = middleware(
-        makeRequest(new URLSearchParams({ page: '2', sort: 'postedAt' })),
+        makeRequest(new URLSearchParams({ page: '2' })),
         event
       )
       expect(res).toEqual(undefined)
@@ -36,42 +38,42 @@ describe('makeMiddleware', () => {
   describe('When condition is active', () => {
     const middleware = makeMiddleware({
       activeWhen: () => true,
-      keys: ['page', 'sort'],
-      path: '/base/[page]/[sort]'
+      queries: [{ key: 'page', fill: '1' }],
+      path: '/base/[page]'
     })
     test('the path will be replaced', () => {
+      middleware(makeRequest(new URLSearchParams({ page: '2' })), event)
+      expect(NextResponse.rewrite).toBeCalledWith('/base/2')
+    })
+    test('missing parameters will be replaced by `fill`', () => {
+      middleware(makeRequest(new URLSearchParams({})), event)
+      expect(NextResponse.rewrite).toBeCalledWith('/base/1')
+    })
+    test('parameters not specified as keys will be ignored', () => {
       middleware(
         makeRequest(new URLSearchParams({ page: '2', sort: 'postedAt' })),
         event
       )
-      expect(NextResponse.rewrite).toBeCalledWith('/base/2/postedAt')
+      expect(NextResponse.rewrite).toBeCalledWith('/base/2')
     })
-    test('missing parameters will be replaced by blank', () => {
-      middleware(makeRequest(new URLSearchParams({ sort: 'postedAt' })), event)
-      expect(NextResponse.rewrite).toBeCalledWith('/base//postedAt')
-    })
-    test('parameters not specified as keys will be ignored', () => {
-      middleware(
-        makeRequest(
-          new URLSearchParams({ page: '2', sort: 'postedAt', foo: 'foo' })
-        ),
-        event
-      )
-      expect(NextResponse.rewrite).toBeCalledWith('/base/2/postedAt')
+    test('warning occurs if empty character is specified for `fill`', () => {
+      makeMiddleware({
+        activeWhen: () => true,
+        queries: [{ key: 'page', fill: '' }],
+        path: '/base/[page]'
+      })(makeRequest(new URLSearchParams({ page: '2' })), event)
+      expect(console.warn).toBeCalledWith(expect.any(String))
     })
   })
 
   describe('When no condition is specified', () => {
     const middleware = makeMiddleware({
-      keys: ['page', 'sort'],
-      path: '/base/[page]/[sort]'
+      queries: [{ key: 'page', fill: '1' }],
+      path: '/base/[page]'
     })
     test('the path will be replaced', () => {
-      middleware(
-        makeRequest(new URLSearchParams({ page: '2', sort: 'postedAt' })),
-        event
-      )
-      expect(NextResponse.rewrite).toBeCalledWith('/base/2/postedAt')
+      middleware(makeRequest(new URLSearchParams({ page: '2' })), event)
+      expect(NextResponse.rewrite).toBeCalledWith('/base/2')
     })
   })
 })
