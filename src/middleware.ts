@@ -14,7 +14,7 @@ export const makeMiddleware = (option: {
           'It is dangerous to pass an empty string for `fill`; it should be a string of one or more characters.'
         )
       const val = req.nextUrl.searchParams.get(key)
-      return res.replace(`[${key}]`, val ?? fill)
+      return res.replace(`[${key}]`, val || fill)
     }, option.path)
 
     return NextResponse.rewrite(replacePath)
