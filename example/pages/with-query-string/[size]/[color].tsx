@@ -1,5 +1,4 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
-import { getQueryStringProps, stripQueryStringPath } from 'qs-props'
 import React, { useCallback, useState, VFC } from 'react'
 import {
   Table,
@@ -12,39 +11,45 @@ import {
 } from '@geist-ui/react'
 import { useRouter } from 'next/router'
 
-export const getStaticPaths: GetStaticPaths = () => {
+export const getStaticPaths: GetStaticPaths<{
+  size: string
+  color: string
+}> = () => {
+  const paths = ['_', ...sizes].flatMap((size) =>
+    ['_', ...colors].map((color) => ({
+      params: {
+        size,
+        color
+      }
+    }))
+  )
   return {
-    paths: [],
-    fallback: 'blocking'
+    paths,
+    fallback: false
   }
 }
 
-export const getStaticProps: GetStaticProps = async (ctx) => {
-  const props = getQueryStringProps<Pick<Props, 'size' | 'color'>>(ctx, 'path')
-
-  if (!props)
-    return {
-      props: {}
-    }
-
-  if (props.size && !props.size.every((v) => sizes.includes(v)))
-    return {
-      notFound: true
-    }
-
-  if (props.color && !props.color.every((v) => colors.includes(v)))
-    return {
-      notFound: true
-    }
+export const getStaticProps: GetStaticProps<
+  Props,
+  { size: string; color: string }
+> = async (ctx) => {
+  const { size, color } = Object.entries(ctx.params ?? {}).reduce(
+    (res, [key, value]) => ({
+      ...res,
+      [key]: value.replace(/^_$/, '')
+    }),
+    { size: '', color: '' }
+  )
+  console.log(size, color)
 
   const generatedAt = new Date().toUTCString()
 
-  return { props: { ...props, generatedAt } }
+  return { props: { size, color, generatedAt } }
 }
 
 type Props = {
-  size?: string[]
-  color?: string[]
+  size: string
+  color: string
   generatedAt: string
 }
 
@@ -53,60 +58,65 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
     .sort(([a], [b]) => b.localeCompare(a))
     .map(([key, value]) => ({ key, value }))
   const router = useRouter()
-  const [size, setSize] = useState(props.size ?? [])
+  const [size, setSize] = useState(props.size ?? '')
   const handleSize = useCallback(
     (value: string | string[]) => {
-      const { size: _size, color } = props
-      router.push({
-        pathname: router.pathname,
-        query: {
-          path: stripQueryStringPath(router.query.path ?? ''),
-          ...(color && { 'color[]': color }),
-          ...(value && { 'size[]': value })
-        }
-      })
-      setSize(Array.isArray(value) ? value : [value])
+      if (typeof value !== 'string') return
+      const { color } = props
+      router.push(
+        {
+          pathname: router.pathname,
+          query: {
+            ...(color ? { color } : { color: '_' }),
+            ...(value ? { size: value } : { size: '_' })
+          }
+        },
+        `/with-query-string?${new URLSearchParams({
+          ...(color ? { color } : {}),
+          ...(value ? { size: value } : {})
+        }).toString()}`
+      )
+      setSize(value)
     },
     [props, router]
   )
-
-  const [color, setColor] = useState(props.color ?? [])
+  const [color, setColor] = useState(props.color ?? '')
   const handleColor = useCallback(
     (value: string | string[]) => {
-      const { color: _color, size } = props
-      router.push({
-        pathname: router.pathname,
-        query: {
-          path: stripQueryStringPath(router.query.path ?? ''),
-          ...(size && { 'size[]': size }),
-          ...(value && { 'color[]': value })
-        }
-      })
-      setColor(Array.isArray(value) ? value : [value])
+      if (typeof value !== 'string') return
+      const { size } = props
+      router.push(
+        {
+          pathname: router.pathname,
+          query: {
+            ...(size ? { size } : { size: '_' }),
+            ...(value ? { color: value } : { color: '_' })
+          }
+        },
+        `/with-query-string?${new URLSearchParams({
+          ...(size ? { size } : {}),
+          ...(value ? { color: value } : {})
+        }).toString()}`
+      )
+      setColor(value)
     },
     [props, router]
   )
 
   return (
     <>
-      <Text h2>Custom Query Parser Example</Text>
+      <Text h2>Static Generate with Query Strings Example</Text>
 
       <Text>
-        You can use your own customized parser for the query string. In this
-        example, the key of the query pointing to the array parameter is a
-        bracket. <Code>foo[]=bar&foo[]=baz</Code>
+        With <Code>qs-props</Code>, parameters passed by the query string can be
+        handled by getStaticProps.
       </Text>
 
       <Spacer />
 
       <Grid.Container gap={1}>
         <Grid>
-          <Select
-            placeholder="Size"
-            onChange={handleSize}
-            value={size}
-            multiple
-          >
+          <Select placeholder="Size" onChange={handleSize} value={size}>
             <Select.Option value="">-</Select.Option>
             {sizes.map((size) => (
               <Select.Option key={size} value={size}>
@@ -116,12 +126,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
           </Select>
         </Grid>
         <Grid>
-          <Select
-            placeholder="Color"
-            onChange={handleColor}
-            value={color}
-            multiple
-          >
+          <Select placeholder="Color" onChange={handleColor} value={color}>
             <Select.Option value="">-</Select.Option>
             {colors.map((color) => (
               <Select.Option key={color} value={color}>
@@ -153,11 +158,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
           label="key"
           render={(v) => <Text b>{v}</Text>}
         />
-        <Table.Column
-          prop="value"
-          label="value"
-          render={(v) => <Text>{Array.isArray(v) ? v.join(' | ') : v}</Text>}
-        />
+        <Table.Column prop="value" label="value" />
       </Table>
 
       <Spacer />
