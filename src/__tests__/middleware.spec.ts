@@ -45,8 +45,12 @@ describe('makeMiddleware', () => {
       middleware(makeRequest(new URLSearchParams({ page: '2' })), event)
       expect(NextResponse.rewrite).toBeCalledWith('/base/2')
     })
-    test('missing parameters will be replaced by `fill`', () => {
+    test('missing query strings will be replaced by `fill`', () => {
       middleware(makeRequest(new URLSearchParams({})), event)
+      expect(NextResponse.rewrite).toBeCalledWith('/base/1')
+    })
+    test('empty query string will be replaced by `fill`', () => {
+      middleware(makeRequest(new URLSearchParams({ page: '' })), event)
       expect(NextResponse.rewrite).toBeCalledWith('/base/1')
     })
     test('parameters not specified as keys will be ignored', () => {
