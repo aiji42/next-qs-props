@@ -1,7 +1,7 @@
 import { GetServerSidePropsContext } from 'next'
 
 type ParsedParams<T extends readonly string[]> = {
-  [k in T[number]]: string | null
+  [k in T[number]]?: string
 }
 
 export const qs = <T extends readonly string[]>(
@@ -12,24 +12,23 @@ export const qs = <T extends readonly string[]>(
     params
   }: Pick<GetServerSidePropsContext, 'params'>): ParsedParams<T> => {
     const param = params?.[paramsKey] ?? []
-    const initial = Object.fromEntries(
-      keys.map((k) => [k, null])
-    ) as ParsedParams<T>
-    return (Array.isArray(param) ? param : [param]).reduce<{
-      [k in T[number]]: string | null
-    }>((res, param) => {
-      const key = keys.find((key) => param.startsWith(key))
-      if (!key) return res
-      return {
-        ...res,
-        [key]: param.replace(new RegExp(`^${key}-`), '')
-      }
-    }, initial)
+    return (Array.isArray(param) ? param : [param]).reduce<ParsedParams<T>>(
+      (res, param) => {
+        const key = keys.find((key) => param.startsWith(key))
+        if (!key) return res
+        return {
+          ...res,
+          [key]: param.replace(new RegExp(`^${key}-`), '')
+        }
+      },
+      {}
+    )
   },
   makeQuery: (params: Partial<ParsedParams<T>>): Record<string, string[]> => {
     return {
       [paramsKey]: Object.entries(params)
         .filter(([, v]) => v)
+        .sort()
         .map(([k, v]) => `${k}-${v}`)
     }
   }
