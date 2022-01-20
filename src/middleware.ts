@@ -12,6 +12,7 @@ export const makeMiddleware = (option: {
         const val = req.nextUrl.searchParams.get(key)
         return val ? [...res, `${key}-${val}`] : res
       }, [])
+      .sort()
       .join('/')
     if (!params) return
 
