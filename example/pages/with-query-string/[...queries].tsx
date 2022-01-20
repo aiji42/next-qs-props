@@ -10,22 +10,22 @@ import {
   Grid
 } from '@geist-ui/react'
 import { useRouter } from 'next/router'
+import { qs } from 'qs-props'
 
-export const getStaticPaths: GetStaticPaths<{
-  size: string
-  color: string
-}> = () => {
-  const paths = ['_', ...sizes].flatMap((size) =>
-    ['_', ...colors].map((color) => ({
-      params: {
-        size,
-        color
-      }
+const { getQueryStringProps, makeQuery } = qs(
+  ['color', 'size'] as const,
+  'queries'
+)
+
+export const getStaticPaths: GetStaticPaths = () => {
+  const paths = [undefined, ...sizes].flatMap((size) =>
+    [undefined, ...colors].map((color) => ({
+      params: makeQuery({ size, color })
     }))
   )
   return {
-    paths,
-    fallback: false
+    paths: paths,
+    fallback: 'blocking'
   }
 }
 
@@ -33,18 +33,12 @@ export const getStaticProps: GetStaticProps<
   Props,
   { size: string; color: string }
 > = async (ctx) => {
-  const { size, color } = Object.entries(ctx.params ?? {}).reduce(
-    (res, [key, value]) => ({
-      ...res,
-      [key]: value.replace(/^_$/, '')
-    }),
-    { size: '', color: '' }
-  )
+  const { size, color } = getQueryStringProps(ctx)
   console.log(size, color)
 
   const generatedAt = new Date().toUTCString()
 
-  return { props: { size, color, generatedAt } }
+  return { props: { size: size ?? '', color: color ?? '', generatedAt } }
 }
 
 type Props = {
@@ -66,10 +60,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       router.push(
         {
           pathname: router.pathname,
-          query: {
-            ...(color ? { color } : { color: '_' }),
-            ...(value ? { size: value } : { size: '_' })
-          }
+          query: makeQuery({ color, size: value })
         },
         `/with-query-string?${new URLSearchParams({
           ...(color ? { color } : {}),
@@ -88,10 +79,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       router.push(
         {
           pathname: router.pathname,
-          query: {
-            ...(size ? { size } : { size: '_' }),
-            ...(value ? { color: value } : { color: '_' })
-          }
+          query: makeQuery({ size, color: value })
         },
         `/with-query-string?${new URLSearchParams({
           ...(size ? { size } : {}),

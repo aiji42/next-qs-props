@@ -1487,10 +1487,10 @@ punycode@^2.1.0:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-qs-props@^2.0.0-beta.3:
-  version "2.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/qs-props/-/qs-props-2.0.0-beta.3.tgz#78e925bbb79b7d71fe81a82f92cf02b78cddefba"
-  integrity sha512-VvJ7HP0sF6JtXO3n3PG8W5NFz67N51I2yZ5sePwYZVPGPnb7PbWL98dA+pcjy0wUzmtN0huhWFx0hw2Jk8c1Fw==
+qs-props@^2.0.0-beta.7:
+  version "2.0.0-beta.7"
+  resolved "https://registry.yarnpkg.com/qs-props/-/qs-props-2.0.0-beta.7.tgz#598ffafcb48a9fe1e2bfec1c1d91217cd1eb4d13"
+  integrity sha512-33bJ1Dns7iQ2mzkefH/k3dn4LvFXdjrcTDf1OU5cjhIH4c9+yd7SDd93PTP6zKNqJ0VyWc7Vx7br0rSzEr545Q==
 
 queue-microtask@^1.2.2:
   version "1.2.3"
