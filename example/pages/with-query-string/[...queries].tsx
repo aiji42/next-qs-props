@@ -22,7 +22,7 @@ export const getStaticPaths: GetStaticPaths = () => {
     [undefined, ...colors].map((color) => ({
       params: makeQuery({ size, color })
     }))
-  )
+  ).filter(({ params: { queries } }) => queries.length)
   return {
     paths: paths,
     fallback: 'blocking'
