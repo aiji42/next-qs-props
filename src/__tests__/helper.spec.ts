@@ -8,25 +8,24 @@ describe('qs', () => {
     ).toEqual({ foo: 'apple', bar: 'orange' })
     expect(
       getQueryStringProps({ params: { queries: ['foo-apple', 'baz-orange'] } })
-    ).toEqual({ foo: 'apple', bar: null })
+    ).toEqual({ foo: 'apple' })
     expect(getQueryStringProps({ params: { queries: ['foo-apple'] } })).toEqual(
-      { foo: 'apple', bar: null }
+      { foo: 'apple' }
     )
     expect(getQueryStringProps({ params: { queries: 'foo-apple' } })).toEqual({
-      foo: 'apple',
-      bar: null
+      foo: 'apple'
     })
-    expect(getQueryStringProps({})).toEqual({ foo: null, bar: null })
+    expect(getQueryStringProps({})).toEqual({})
   })
   test('makeQuery', () => {
     const { makeQuery } = qs(['foo', 'bar'] as const, 'queries')
     expect(makeQuery({ foo: 'apple', bar: 'orange' })).toEqual({
-      queries: ['foo-apple', 'bar-orange']
+      queries: ['bar-orange', 'foo-apple']
     })
     expect(makeQuery({ foo: 'apple' })).toEqual({
       queries: ['foo-apple']
     })
-    expect(makeQuery({ foo: 'apple', bar: null })).toEqual({
+    expect(makeQuery({ foo: 'apple' })).toEqual({
       queries: ['foo-apple']
     })
   })
