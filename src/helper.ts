@@ -27,7 +27,7 @@ export const qs = <T extends readonly string[]>(
   makeQuery: (params: Partial<ParsedParams<T>>): Record<string, string[]> => {
     return {
       [paramsKey]: Object.entries(params)
-        .filter(([, v]) => v)
+        .filter(([k, v]) => v && keys.includes(k))
         .sort()
         .map(([k, v]) => `${k}-${v}`)
     }

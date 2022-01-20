@@ -25,7 +25,7 @@ describe('qs', () => {
     expect(makeQuery({ foo: 'apple' })).toEqual({
       queries: ['foo-apple']
     })
-    expect(makeQuery({ foo: 'apple' })).toEqual({
+    expect(makeQuery({ foo: 'apple', bar: undefined })).toEqual({
       queries: ['foo-apple']
     })
   })
