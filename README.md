@@ -43,7 +43,7 @@ import { GetStaticPaths, GetStaticProps } from 'next'
 import { qs } from 'qs-props'
 
 const { getQueryStringProps, makeQuery } = qs(
-  ['size', 'color'] as const,
+  ['size'] as const,
   'queries'
 )
 
@@ -122,7 +122,7 @@ To infer the type of the value obtained from `getQueryStringProps`, set the firs
 import { qs } from 'qs-props'
 
 const { makeQuery } = qs(
-  ['color'] as const,
+  ['color', 'size'] as const,
   'queries'
 )
 
