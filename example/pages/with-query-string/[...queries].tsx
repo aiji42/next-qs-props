@@ -18,24 +18,21 @@ const { getQueryStringProps, makeQuery } = qs(
 )
 
 export const getStaticPaths: GetStaticPaths = () => {
-  const paths = [undefined, ...sizes].flatMap((size) =>
-    [undefined, ...colors].map((color) => ({
-      params: makeQuery({ size, color })
-    }))
-  ).filter(({ params: { queries } }) => queries.length)
+  const paths = [undefined, ...sizes]
+    .flatMap((size) =>
+      [undefined, ...colors].map((color) => ({
+        params: makeQuery({ size, color })
+      }))
+    )
+    .filter(({ params: { queries } }) => queries.length)
   return {
     paths: paths,
     fallback: 'blocking'
   }
 }
 
-export const getStaticProps: GetStaticProps<
-  Props,
-  { size: string; color: string }
-> = async (ctx) => {
+export const getStaticProps: GetStaticProps<Props> = async (ctx) => {
   const { size, color } = getQueryStringProps(ctx)
-  console.log(size, color)
-
   const generatedAt = new Date().toUTCString()
 
   return { props: { size: size ?? '', color: color ?? '', generatedAt } }
@@ -59,7 +56,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       const { color } = props
       router.push(
         {
-          pathname: router.pathname,
+          pathname: '/with-query-string/[...queries]',
           query: makeQuery({ color, size: value })
         },
         `/with-query-string?${new URLSearchParams({
@@ -78,7 +75,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       const { size } = props
       router.push(
         {
-          pathname: router.pathname,
+          pathname: '/with-query-string/[...queries]',
           query: makeQuery({ size, color: value })
         },
         `/with-query-string?${new URLSearchParams({
