@@ -1,209 +1,81 @@
-import { makeQueryStringMiddleware } from '../middleware'
-import { NextRequest, NextResponse } from 'next/server'
-import { parse } from 'query-string'
+import { makeMiddleware } from '../middleware'
+import { NextRequest, NextResponse, NextFetchEvent } from 'next/server'
 
 jest.mock('next/server', () => ({
   NextResponse: { rewrite: jest.fn() }
 }))
 
-describe('makeQueryStringMiddleware', () => {
+const event = {} as NextFetchEvent
+const makeRequest = (
+  searchParams: URLSearchParams,
+  pathname = '/base'
+): NextRequest =>
+  ({
+    nextUrl: {
+      searchParams,
+      pathname
+    }
+  } as NextRequest)
+
+describe('makeMiddleware', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     ;(NextResponse.rewrite as jest.Mock).mockImplementation((args) => args)
   })
-  describe('dose not inject a parser', () => {
-    describe('does not passed allowKeys', () => {
-      const middleware = makeQueryStringMiddleware()
-      test('root path', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo=bar&bar=baz',
-              searchParams: new URLSearchParams('foo=bar&bar=baz'),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toEqual('/_query.{"foo"|||"bar","bar"|||"baz"}')
-      })
-      test('under the some path', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo=bar&bar=baz',
-              searchParams: new URLSearchParams('foo=bar&bar=baz'),
-              pathname: '/some-path'
-            }
-          } as NextRequest)
-        ).toEqual('/some-path/_query.{"foo"|||"bar","bar"|||"baz"}')
-      })
-      test('with a trailing slash', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo=bar&bar=baz',
-              searchParams: new URLSearchParams('foo=bar&bar=baz'),
-              pathname: '/some-path/'
-            }
-          } as NextRequest)
-        ).toEqual('/some-path/_query.{"foo"|||"bar","bar"|||"baz"}')
-      })
-      test('does not have search params', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: '',
-              searchParams: new URLSearchParams(''),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toBeUndefined()
-      })
+  describe('When condition is Not active', () => {
+    const middleware = makeMiddleware({
+      activeWhen: () => false,
+      keys: ['page']
     })
-
-    describe('passed allowKeys', () => {
-      let middleware = makeQueryStringMiddleware({
-        allowKeys: ['allowedKey']
-      })
-      test('does not have allowedKey value', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo=bar&bar=baz',
-              searchParams: new URLSearchParams('foo=bar&bar=baz'),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toBeUndefined()
-      })
-      test('has allowedKey value', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo=bar&bar=baz&allowedKey=true',
-              searchParams: new URLSearchParams(
-                'foo=bar&bar=baz&allowedKey=true'
-              ),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toEqual('/_query.{"allowedKey"|||"true"}')
-      })
-      test('has multi allowedKeys value', () => {
-        let middleware = makeQueryStringMiddleware({
-          allowKeys: ['allowedKey1', 'allowedKey2']
-        })
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo=bar&bar=baz&allowedKey1=true&allowedKey2=false',
-              searchParams: new URLSearchParams(
-                'foo=bar&bar=baz&allowedKey1=true&allowedKey2=false'
-              ),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toEqual('/_query.{"allowedKey1"|||"true","allowedKey2"|||"false"}')
-      })
+    test('parameters are NOT pathified', () => {
+      const res = middleware(
+        makeRequest(new URLSearchParams({ page: '2' })),
+        event
+      )
+      expect(res).toEqual(undefined)
+      expect(NextResponse.rewrite).not.toBeCalled()
+    })
+  })
+  describe('When condition is active', () => {
+    const middleware = makeMiddleware({
+      activeWhen: () => true,
+      keys: ['page']
+    })
+    test('parameters are pathified', () => {
+      middleware(makeRequest(new URLSearchParams({ page: '2' })), event)
+      expect(NextResponse.rewrite).toBeCalledWith('/base/page-2')
+    })
+    test('if there is no querystring, it will not be rewritten', () => {
+      middleware(makeRequest(new URLSearchParams({})), event)
+      expect(NextResponse.rewrite).not.toBeCalled()
+    })
+    test('ff the querystring is empty, it will not be rewritten', () => {
+      middleware(makeRequest(new URLSearchParams({ page: '' })), event)
+      expect(NextResponse.rewrite).not.toBeCalled()
+    })
+    test('parameters not specified as keys will be ignored', () => {
+      middleware(
+        makeRequest(new URLSearchParams({ page: '2', sort: 'postedAt' })),
+        event
+      )
+      expect(NextResponse.rewrite).toBeCalledWith('/base/page-2')
+    })
+    test('no duplicate slashes, even with trailing slashes', () => {
+      middleware(
+        makeRequest(new URLSearchParams({ page: '2' }), '/base/'),
+        event
+      )
+      expect(NextResponse.rewrite).toBeCalledWith('/base/page-2')
     })
   })
 
-  describe('inject a parser', () => {
-    describe('does not passed allowKeys', () => {
-      const middleware = makeQueryStringMiddleware({
-        parser: (q) => parse(q, { arrayFormat: 'bracket' })
-      })
-      test('root path', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo[]=bar&foo[]=baz',
-              searchParams: new URLSearchParams('foo[]=bar&foo[]=baz'),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toEqual('/_query.{"foo"|||["bar","baz"]}')
-      })
-      test('under the some path', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo[]=bar&foo[]=baz',
-              searchParams: new URLSearchParams('foo[]=bar&foo[]=baz'),
-              pathname: '/some-path'
-            }
-          } as NextRequest)
-        ).toEqual('/some-path/_query.{"foo"|||["bar","baz"]}')
-      })
-      test('with a trailing slash', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo[]=bar&foo[]=baz',
-              searchParams: new URLSearchParams('foo[]=bar&foo[]=baz'),
-              pathname: '/some-path/'
-            }
-          } as NextRequest)
-        ).toEqual('/some-path/_query.{"foo"|||["bar","baz"]}')
-      })
-      test('does not have search params', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: '',
-              searchParams: new URLSearchParams(''),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toBeUndefined()
-      })
+  describe('When no condition is specified', () => {
+    const middleware = makeMiddleware({
+      keys: ['page']
     })
-
-    describe('passed allowKeys', () => {
-      let middleware = makeQueryStringMiddleware({
-        parser: (q) => parse(q, { arrayFormat: 'bracket' }),
-        allowKeys: ['allowedKey']
-      })
-      test('does not have allowedKey value', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo[]=bar&foo[]=baz',
-              searchParams: new URLSearchParams('foo[]=bar&foo[]=baz'),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toBeUndefined()
-      })
-      test('has allowedKey value', () => {
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo[]=bar&foo[]=baz&allowedKey=true',
-              searchParams: new URLSearchParams(
-                'foo[]=bar&foo[]=baz&allowedKey=true'
-              ),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toEqual('/_query.{"allowedKey"|||"true"}')
-      })
-      test('has multi allowedKeys value', () => {
-        let middleware = makeQueryStringMiddleware({
-          parser: (q) => parse(q, { arrayFormat: 'bracket' }),
-          allowKeys: ['allowedKey1', 'allowedKey2']
-        })
-        expect(
-          middleware({
-            nextUrl: {
-              search: 'foo[]=bar&foo[]=baz&allowedKey1=true&allowedKey2=false',
-              searchParams: new URLSearchParams(
-                'foo[]=bar&foo[]=baz&allowedKey1=true&allowedKey2=false'
-              ),
-              pathname: '/'
-            }
-          } as NextRequest)
-        ).toEqual('/_query.{"allowedKey1"|||"true","allowedKey2"|||"false"}')
-      })
+    test('the path will be replaced', () => {
+      middleware(makeRequest(new URLSearchParams({ page: '2' })), event)
+      expect(NextResponse.rewrite).toBeCalledWith('/base/page-2')
     })
   })
 })

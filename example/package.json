@@ -8,19 +8,18 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@geist-ui/react": "^2.2.0",
+    "@geist-ui/react": "^2.2.3",
     "@geist-ui/react-icons": "^1.0.1",
-    "next": "12.0.7",
-    "qs-props": "^1.1.1",
-    "query-string": "^7.0.1",
+    "next": "12.0.8",
+    "qs-props": "^2.0.0-beta.7",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "devDependencies": {
-    "@types/node": "16.11.12",
-    "@types/react": "17.0.37",
-    "eslint": "8.4.1",
-    "eslint-config-next": "12.0.7",
-    "typescript": "4.5.2"
+    "@types/node": "17.0.9",
+    "@types/react": "17.0.38",
+    "eslint": "8.7.0",
+    "eslint-config-next": "12.0.8",
+    "typescript": "4.5.4"
   }
 }

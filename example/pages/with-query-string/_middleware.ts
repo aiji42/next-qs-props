@@ -1,5 +1,5 @@
-import { makeQueryStringMiddleware } from 'qs-props'
+import { makeMiddleware } from 'qs-props'
 
-export const middleware = makeQueryStringMiddleware({
-  allowKeys: ['size', 'color']
+export const middleware = makeMiddleware({
+  keys: ['size', 'color']
 })

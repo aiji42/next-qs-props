@@ -31,24 +31,33 @@ npm install --save qs-props
 // /pages/_middleware.ts
 import { makeQueryStringMiddleware } from 'qs-props'
 
-export const middleware = makeQueryStringMiddleware()
+export const middleware = makeQueryStringMiddleware({
+  keys: ['size']
+})
 ```
 
-The file name of the page must be in the three dots format (...) such as `[...path].tsx` to handle multiple routes.
+The file name of the page must be in the three dots format (...) such as `[...queries].tsx` to handle multiple routes.
 ```tsx
-// /pages/[...path].tsx
+// /pages/[...queries].tsx
 import { GetStaticPaths, GetStaticProps } from 'next'
-import { getQueryStringProps } from 'qs-props'
+import { qs } from 'qs-props'
+
+const { getQueryStringProps, makeQuery } = qs(
+  ['size'] as const,
+  'queries'
+)
 
 export const getStaticPaths: GetStaticPaths = () => {
   return {
-    paths: [],
-    fallback: 'blocking'
+    paths: ['large', 'medium', 'small'].map((size) => ({
+      params: makeQuery({ size })
+    })),
+    fallback: false
   }
 }
 
-export const getStaticProps: GetStaticProps = async (ctx) => {
-  const props = getQueryStringProps(ctx, 'path')
+export const getStaticProps: GetStaticProps = (ctx) => {
+  const props = getQueryStringProps(ctx)
 
   return { props }
 }
@@ -62,72 +71,88 @@ const Page = (props) => {
 
 Run it in the middleware file (_middleware.ts).
 
-You can specify a list of keys as `allowKeys` to be handled. Any query strings other than the specified keys will be ignored.  
-**It is recommended to specify `allowKeys` in order to suppress unnecessary static generation.**
+Specify the list of keys to process as `keys`. Unspecified keys will be ignored.
 ```ts
 import { makeQueryStringMiddleware } from 'qs-props'
 
 export const middleware = makeQueryStringMiddleware({ 
-  // Other than size and color, all other creative strings will be ignored.
-  allowKeys: ['color', 'size']
+  // Other than size and color, all other query strings will be ignored.
+  keys: ['color', 'size']
 })
 ```
 
-By default, the parsing of query strings follows the rules of [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams).  
-You can set a self-defined query parser (or use an external library) to `parser` to interpret queries according to your own rules.
-```ts
-import { makeQueryStringMiddleware } from 'qs-props'
-import { parse } from 'query-string'
+### qs
 
-export const middleware = makeQueryStringMiddleware({
-  // Parses array data using bracket notation. ?foo[]=bar&foo[]=baz
-  parser: (q) => parse(q, { arrayFormat: 'bracket' })
-})
+You can use `qs` to get two functions, `getQueryStringProps` and `makeQuery`.  
+The first argument should be the same value as `keys` in `makeQueryStringMiddleware`. If you are using Typescript, you can get the benefit of type completion by making it readonly with `as const`.  
+The second argument should be the same value as the page file name (path parameter name). For example, if the page file is `pages/base/[...queries].tsx`, it is `queries`.
+
+```ts
+const { getQueryStringProps, makeQuery } = qs(
+  ['color', 'size'] as const,
+  'queries'
+)
 ```
 
-### getQueryStringProps
+#### getQueryStringProps
+`getQueryStringProps` is a function that allows you to get the value of a query string from `GetStaticPropsContext`.
 
-In getStaticProps, you can handle the query string data parsed by the middleware.
+```tsx
+// pages/base/[...queries].tsx
+import { qs } from 'qs-props'
 
-The first argument is `getStaticPropsContext` (or `{ params: ParsedUrlQuery }`) and the second argument is the key of the path parameter (`[. .slug].tsx` for `slug`).  
-It is possible to set the type of the return value as generic.
+const { getQueryStringProps } = qs(
+  ['color', 'size'] as const,
+  'queries'
+)
 
-```ts
-// /pages/[...path].tsx
-
-type Props = {
-  size?: string
-  color?: string
-}
-
-export const getStaticProps: GetStaticProps<Props> = async (ctx) => {
-  const props = getQueryStringProps<Props>(ctx, 'path')
+export const getStaticProps: GetStaticProps = (ctx) => {
+  // props: { size: string; color: string }
+  const props = getQueryStringProps(ctx)
 
   return { props }
 }
 ```
+To infer the type of the value obtained from `getQueryStringProps`, set the first argument of `qs` to be a readonly value.
+
+#### makeQuery
+`makeQuery` is used to generate URLs for `getStaticPaths`, `router.push` `router.replace`, and `Link` component.
+
+```tsx
+import { qs } from 'qs-props'
+
+const { makeQuery } = qs(
+  ['color', 'size'] as const,
+  'queries'
+)
+
+const Links = () => {
+  return (
+    <>
+      {['red', 'black', 'white'].map((color) => (
+        <Link
+          key={color}
+          href={{
+            pathname: '/base/[...queries]',
+            query: makeQuery({ color })
+          }}
+          as={`/base?color=${color}`}
+        >
+          {color}
+        </Link>
+      ))}
+    </>
+  )
+}
+```
+Be sure to use `as` to make sure that the generated URLs come with a query string; without `as`, the path generated by the sample code above will be `/base/color-red`.
 
 ## Note
 
-### Generate path with query string by getStaticPaths
+### About [optional catch all routes](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes)
 
-Use `createQueryStringPath`.
-```ts
-import { createQueryStringPath } from 'qs-props'
-
-const sizes = ['small', 'medium', 'large']
-
-export const getStaticPaths: GetStaticPaths<{ path: string[] }> = () => {
-  return {
-    paths: sizes.map((size) => ({
-      params: {
-        path: ['base-path', createQueryStringPath({ size })]
-      }
-    })),
-    fallback: 'blocking'
-  }
-}
-```
+The page file can be in the format `[[...queries]].tsx` (Optional catch all routes). However, in that case, you will not be able to navigate with Link components or prefetching functions such as `router.push` and `router.replace`.  
+Therefore, it is recommended to have two pages: `index.tsx` to handle paths without query strings, and `[...queries].tsx` for handling query strings.
 
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/aiji42/next-qs-props/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
