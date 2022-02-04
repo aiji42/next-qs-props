@@ -16,8 +16,9 @@ export const makeMiddleware = (option: {
       .join('/')
     if (!params) return
 
-    return NextResponse.rewrite(
-      `${req.nextUrl.pathname}/${params}`.replace(/\/\//, '/')
-    )
+    const url = req.nextUrl.clone()
+    url.pathname = (url.pathname + `/${params}`).replace(/\/\//, '/')
+
+    return NextResponse.rewrite(url)
   }
 }
