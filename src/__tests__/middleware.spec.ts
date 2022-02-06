@@ -1,5 +1,6 @@
 import { makeMiddleware } from '../middleware'
 import { NextRequest, NextResponse, NextFetchEvent } from 'next/server'
+import { NextURL } from 'next/dist/server/web/next-url'
 
 jest.mock('next/server', () => ({
   NextResponse: { rewrite: jest.fn() }
@@ -11,10 +12,9 @@ const makeRequest = (
   pathname = '/base'
 ): NextRequest =>
   ({
-    nextUrl: {
-      searchParams,
-      pathname
-    }
+    nextUrl: new NextURL(
+      `http://localhost:3000${pathname}?${searchParams.toString()}`
+    )
   } as NextRequest)
 
 describe('makeMiddleware', () => {
@@ -27,7 +27,7 @@ describe('makeMiddleware', () => {
       activeWhen: () => false,
       keys: ['page']
     })
-    test('parameters are NOT pathified', () => {
+    test('parameters are specified', () => {
       const res = middleware(
         makeRequest(new URLSearchParams({ page: '2' })),
         event
@@ -41,9 +41,11 @@ describe('makeMiddleware', () => {
       activeWhen: () => true,
       keys: ['page']
     })
-    test('parameters are pathified', () => {
+    test('parameters are specified', () => {
       middleware(makeRequest(new URLSearchParams({ page: '2' })), event)
-      expect(NextResponse.rewrite).toBeCalledWith('/base/page-2')
+      expect(NextResponse.rewrite).toBeCalledWith(
+        new NextURL('http://localhost:3000/base/page-2?page=2')
+      )
     })
     test('if there is no querystring, it will not be rewritten', () => {
       middleware(makeRequest(new URLSearchParams({})), event)
@@ -58,14 +60,18 @@ describe('makeMiddleware', () => {
         makeRequest(new URLSearchParams({ page: '2', sort: 'postedAt' })),
         event
       )
-      expect(NextResponse.rewrite).toBeCalledWith('/base/page-2')
+      expect(NextResponse.rewrite).toBeCalledWith(
+        new NextURL('http://localhost:3000/base/page-2?page=2&sort=postedAt')
+      )
     })
     test('no duplicate slashes, even with trailing slashes', () => {
       middleware(
         makeRequest(new URLSearchParams({ page: '2' }), '/base/'),
         event
       )
-      expect(NextResponse.rewrite).toBeCalledWith('/base/page-2')
+      expect(NextResponse.rewrite).toBeCalledWith(
+        new NextURL('http://localhost:3000/base/page-2?page=2')
+      )
     })
   })
 
@@ -75,7 +81,9 @@ describe('makeMiddleware', () => {
     })
     test('the path will be replaced', () => {
       middleware(makeRequest(new URLSearchParams({ page: '2' })), event)
-      expect(NextResponse.rewrite).toBeCalledWith('/base/page-2')
+      expect(NextResponse.rewrite).toBeCalledWith(
+        new NextURL('http://localhost:3000/base/page-2?page=2')
+      )
     })
   })
 })

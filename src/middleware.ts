@@ -16,8 +16,17 @@ export const makeMiddleware = (option: {
       .join('/')
     if (!params) return
 
-    return NextResponse.rewrite(
-      `${req.nextUrl.pathname}/${params}`.replace(/\/\//, '/')
-    )
+    // next.js <= 12.0.8
+    if (!req.nextUrl.clone) {
+      return NextResponse.rewrite(
+        `${req.nextUrl.pathname}/${params}`.replace(/\/\//, '/')
+      )
+    }
+
+    // next.js >= 12.0.9
+    const url = req.nextUrl.clone()
+    url.pathname = (url.pathname + `/${params}`).replace(/\/\//, '/')
+
+    return NextResponse.rewrite(url)
   }
 }
