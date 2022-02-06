@@ -27,7 +27,7 @@ describe('makeMiddleware', () => {
       activeWhen: () => false,
       keys: ['page']
     })
-    test('parameters are NOT pathified', () => {
+    test('parameters are specified', () => {
       const res = middleware(
         makeRequest(new URLSearchParams({ page: '2' })),
         event
@@ -41,7 +41,7 @@ describe('makeMiddleware', () => {
       activeWhen: () => true,
       keys: ['page']
     })
-    test('parameters are pathified', () => {
+    test('parameters are specified', () => {
       middleware(makeRequest(new URLSearchParams({ page: '2' })), event)
       expect(NextResponse.rewrite).toBeCalledWith(
         new NextURL('http://localhost:3000/base/page-2?page=2')
