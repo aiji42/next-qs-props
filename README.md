@@ -29,9 +29,9 @@ npm install --save qs-props
 
 ```ts
 // /pages/_middleware.ts
-import { makeQueryStringMiddleware } from 'qs-props'
+import { makeMiddleware } from 'qs-props'
 
-export const middleware = makeQueryStringMiddleware({
+export const middleware = makeMiddleware({
   keys: ['size']
 })
 ```
@@ -67,15 +67,15 @@ const Page = (props) => {
 }
 ```
 
-### makeQueryStringMiddleware
+### makeMiddleware
 
 Run it in the middleware file (_middleware.ts).
 
 Specify the list of keys to process as `keys`. Unspecified keys will be ignored.
 ```ts
-import { makeQueryStringMiddleware } from 'qs-props'
+import { makeMiddleware } from 'qs-props'
 
-export const middleware = makeQueryStringMiddleware({ 
+export const middleware = makeMiddleware({ 
   // Other than size and color, all other query strings will be ignored.
   keys: ['color', 'size']
 })
@@ -84,7 +84,7 @@ export const middleware = makeQueryStringMiddleware({
 ### qs
 
 You can use `qs` to get two functions, `getQueryStringProps` and `makeQuery`.  
-The first argument should be the same value as `keys` in `makeQueryStringMiddleware`. If you are using Typescript, you can get the benefit of type completion by making it readonly with `as const`.  
+The first argument should be the same value as `keys` in `makeMiddleware`. If you are using Typescript, you can get the benefit of type completion by making it readonly with `as const`.  
 The second argument should be the same value as the page file name (path parameter name). For example, if the page file is `pages/base/[...queries].tsx`, it is `queries`.
 
 ```ts
