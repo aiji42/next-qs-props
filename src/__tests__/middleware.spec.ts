@@ -1,9 +1,10 @@
+import { describe, test, expect, beforeEach, vi, Mock } from 'vitest'
 import { makeMiddleware } from '../middleware'
 import { NextRequest, NextResponse, NextFetchEvent } from 'next/server'
 import { NextURL } from 'next/dist/server/web/next-url'
 
-jest.mock('next/server', () => ({
-  NextResponse: { rewrite: jest.fn() }
+vi.mock('next/server', () => ({
+  NextResponse: { rewrite: vi.fn() }
 }))
 
 const event = {} as NextFetchEvent
@@ -19,8 +20,8 @@ const makeRequest = (
 
 describe('makeMiddleware', () => {
   beforeEach(() => {
-    jest.resetAllMocks()
-    ;(NextResponse.rewrite as jest.Mock).mockImplementation((args) => args)
+    vi.resetAllMocks()
+    ;(NextResponse.rewrite as Mock).mockImplementation((args) => args)
   })
   describe('When condition is Not active', () => {
     const middleware = makeMiddleware({
