@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/aiji42/next-qs-prop#readme",
   "scripts": {
-    "lint": "eslint ./src/**/*.ts ./src/*.ts",
     "format": "prettier --write src/*.ts src/**/*.ts example/src/*",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -33,13 +32,10 @@
     "@commitlint/config-conventional": "^17.0.3",
     "@types/netmask": "^1.0.30",
     "@types/node": "^18.0.4",
-    "@typescript-eslint/eslint-plugin": "^5.30.6",
-    "@typescript-eslint/parser": "^5.30.6",
     "c8": "^7.11.3",
-    "eslint": "^8.19.0",
-    "eslint-config-prettier": "^8.5.0",
     "fetch-mock": "^9.11.0",
     "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
     "next": "^12.1.0",
     "prettier": "^2.7.1",
     "react": "^18.2.0",
@@ -48,5 +44,10 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4",
     "vitest": "^0.18.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write"
+    ]
   }
 }
