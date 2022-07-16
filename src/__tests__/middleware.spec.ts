@@ -70,9 +70,14 @@ describe('makeMiddleware', () => {
         makeRequest(new URLSearchParams({ page: '2' }), '/base/'),
         event
       )
-      expect(NextResponse.rewrite).toBeCalledWith(
-        new NextURL('http://localhost:3000/base/page-2?page=2')
-      )
+
+      // I really want to write like this...
+      // expect(NextResponse.rewrite).toBeCalledWith(
+      //   new NextURL('http://localhost:3000/base/page-2?page=2')
+      // )
+      expect(
+        (NextResponse.rewrite as Mock).mock.calls[0][0].toString()
+      ).toEqual('http://localhost:3000/base/page-2/?page=2')
     })
   })
 
