@@ -1,4 +1,4 @@
-import { makeMiddleware } from '../dist'
+import { makeMiddleware } from 'qs-props'
 import { NextMiddleware } from 'next/server'
 
 export const middleware: NextMiddleware = (request, event) => {
