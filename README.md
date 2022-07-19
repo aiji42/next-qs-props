@@ -28,7 +28,7 @@ npm install --save qs-props
 ## Usage
 
 ```ts
-// /pages/_middleware.ts
+// middleware.ts
 import { makeMiddleware } from 'qs-props'
 
 export const middleware = makeMiddleware({
@@ -69,7 +69,7 @@ const Page = (props) => {
 
 ### makeMiddleware
 
-Run it in the middleware file (_middleware.ts).
+Run it in the middleware file (middleware.ts).
 
 Specify the list of keys to process as `keys`. Unspecified keys will be ignored.
 ```ts

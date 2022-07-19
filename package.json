@@ -2,12 +2,11 @@
   "name": "qs-props",
   "version": "1.0.0",
   "description": "This library makes it possible to handle query strings in Next.js getStaticProps.",
-  "main": "./dist/index.js",
-  "module": "./esm/main.js",
-  "types": "./esm/main.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
-    "dist",
-    "esm"
+    "dist"
   ],
   "repository": "https://github.com/aiji42/next-qs-props",
   "author": "aiji42 <aiji42@gmail.com> (https://twitter.com/aiji42_dev)",
@@ -17,40 +16,35 @@
   },
   "homepage": "https://github.com/aiji42/next-qs-prop#readme",
   "scripts": {
-    "lint": "eslint ./src/**/*.ts ./src/*.ts",
     "format": "prettier --write src/*.ts src/**/*.ts example/src/*",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "build": "tsc && tsc -p tsconfig.esm.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "build": "node build.js && npx tsc --declaration --emitDeclarationOnly --declarationDir './dist'",
     "prepare": "husky install",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "prepack": "yarn build"
   },
   "peerDependencies": {
-    "next": ">=12.0.9"
+    "next": ">=12.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.5",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-typescript": "^7.16.7",
-    "@commitlint/cli": "^16.2.1",
-    "@commitlint/config-conventional": "^16.2.1",
-    "@types/jest": "^27.4.1",
-    "@types/netmask": "^1.0.30",
-    "@types/node": "^17.0.21",
-    "@typescript-eslint/eslint-plugin": "^5.12.1",
-    "@typescript-eslint/parser": "^5.12.1",
-    "babel-jest": "^27.5.1",
-    "eslint": "^8.10.0",
-    "eslint-config-prettier": "^8.4.0",
-    "fetch-mock": "^9.11.0",
-    "husky": "^7.0.4",
-    "jest": "^27.5.1",
-    "next": "^12.1.0",
-    "prettier": "^2.5.1",
-    "react": "^17.0.2",
-    "semantic-release": "^19.0.2",
-    "semantic-release-cli": "^5.4.4",
-    "ts-node": "^10.5.0",
-    "typescript": "^4.5.5"
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "@types/node": "^18.0.6",
+    "c8": "^7.11.3",
+    "esbuild": "^0.14.49",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "next": "^12.2.2",
+    "prettier": "^2.7.1",
+    "react": "^18.2.0",
+    "semantic-release": "^19.0.3",
+    "typescript": "^4.7.4",
+    "vitest": "^0.18.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write"
+    ]
   }
 }
