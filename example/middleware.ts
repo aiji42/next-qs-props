@@ -6,6 +6,9 @@ export const middleware: NextMiddleware = (request, event) => {
     keys: ['size', 'color']
   })
 
-  if (request.nextUrl.pathname.startsWith('/with-query-string'))
-    return qsMiddleware(request, event)
+  return qsMiddleware(request, event)
+}
+
+export const config = {
+  matcher: '/with-query-string/:path*'
 }
