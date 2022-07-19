@@ -57,7 +57,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       router.push(
         {
           pathname: '/with-query-string/[...queries]',
-          query: makeQuery({ color, size: value })
+          query: { color, size: value }
         },
         `/with-query-string?${new URLSearchParams({
           ...(color ? { color } : {}),
@@ -76,7 +76,7 @@ const Page: VFC<Props> = ({ generatedAt, ...props }) => {
       router.push(
         {
           pathname: '/with-query-string/[...queries]',
-          query: makeQuery({ size, color: value })
+          query: { size, color: value }
         },
         `/with-query-string?${new URLSearchParams({
           ...(size ? { size } : {}),
