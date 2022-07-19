@@ -27,14 +27,6 @@ npm install --save qs-props
 
 ## Usage
 
-```ts
-// middleware.ts
-import { makeMiddleware } from 'qs-props'
-
-export const middleware = makeMiddleware({
-  keys: ['size']
-})
-```
 The file name of the page should be in three-dot format, as `[...queries].tsx`, or a catch-all route, as `[[...queries]].tsx`.
 ```tsx
 // /pages/with-query-string/[[...queries]].tsx
@@ -63,6 +55,19 @@ export const getStaticProps: GetStaticProps = (ctx) => {
 
 const Page = (props) => {
   return <div>{JSON.stringify(props)}</div>
+}
+```
+
+```ts
+// middleware.ts
+import { makeMiddleware } from 'qs-props'
+
+export const middleware = makeMiddleware({
+  keys: ['size']
+})
+
+export const config = {
+  matcher: '/with-query-string/:path*'
 }
 ```
 
